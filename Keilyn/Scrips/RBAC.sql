@@ -55,13 +55,13 @@ GRANT auditor TO auditor_petit;
 CREATE USER empleado_operativo_1 WITH PASSWORD 'op_123';
 GRANT empleado_operativo TO empleado_operativo_1;
 
--- 5. Permisos para ejecutar procedimientos (Falta)
--- GRANT EXECUTE ON FUNCTION sp_reporte_valoracion_reabastecimiento(INTEGER, NUMERIC)
---       TO db_admin, inventory_manager;
--- GRANT EXECUTE ON FUNCTION sp_reporte_rotacion_inventario(DATE, DATE, INTEGER)
---       TO db_admin, inventory_manager, auditor;
--- GRANT EXECUTE ON FUNCTION sp_checkout(...) TO db_admin, inventory_manager;
--- GRANT EXECUTE ON FUNCTION sp_transferencia(...) TO db_admin, inventory_manager;
+-- 5. Permisos para ejecutar procedimientos
+-- inventory_manager (registra ventas y transferencias, pero no las borra)
+GRANT SELECT, INSERT ON detalle_venta, transferencia, detalle_transferencia TO inventory_manager;
+GRANT SELECT, INSERT, UPDATE ON venta TO inventory_manager;
+
+-- auditor (solo lectura)
+GRANT SELECT ON venta, detalle_venta, transferencia, detalle_transferencia TO auditor;
 
 --Prueba:
 SET ROLE empleado_operativo_1;
