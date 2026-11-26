@@ -1,3 +1,5 @@
+
+SET ROLE postgres;
 --FASE 2: CONTROL DE ACCESO BASADO EN ROLES
 
 --0. Eliminación previa para poder re-ejecutar el script sin errores
@@ -15,6 +17,7 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM PUBLIC;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES REVOKE EXECUTE ON ROUTINES FROM PUBLIC;
 
 GRANT USAGE ON SCHEMA public TO inventory_manager, auditor, empleado_operativo;
 GRANT ALL ON SCHEMA public TO db_admin;
@@ -29,15 +32,14 @@ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO db_admin;
 -- inventory_manager (Gestor de inventario con permisos de lectura, inserción y actualización sobre productos y stock). 
 GRANT SELECT, INSERT, UPDATE ON producto, inventario TO inventory_manager;
 GRANT SELECT ON categoria, subcategoria, proveedor, almacen, movimientoinventario TO inventory_manager;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO inventory_manager;
+GRANT SELECT, INSERT ON movimientoinventario TO inventory_manager;
 
 -- auditor (Rol con permisos estrictos de solo lectura sobre reportes y movimientos).
-GRANT SELECT ON movimientoinventario, inventario TO auditor;
+GRANT SELECT ON movimientoinventario, inventario, producto, categoria, subcategoria, almacen, proveedor TO auditor;
 REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON ALL TABLES IN SCHEMA public FROM auditor;
 
 -- empleado operativo (operaciones básicas de consulta y actualización limitada, sin acces a reportes ni administración).
 GRANT SELECT ON producto, categoria, subcategoria, almacen, inventario TO empleado_operativo;
-GRANT INSERT, UPDATE ON movimientoinventario TO empleado_operativo;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO empleado_operativo;
 REVOKE DELETE, TRUNCATE ON ALL TABLES IN SCHEMA public FROM empleado_operativo;
 
@@ -53,6 +55,14 @@ GRANT auditor TO auditor_petit;
 
 CREATE USER empleado_operativo_1 WITH PASSWORD 'op_123';
 GRANT empleado_operativo TO empleado_operativo_1;
+
+-- 5. Permisos para ejecutar procedimientos (Falta)
+-- GRANT EXECUTE ON FUNCTION sp_reporte_valoracion_reabastecimiento(INTEGER, NUMERIC)
+--       TO db_admin, inventory_manager;
+-- GRANT EXECUTE ON FUNCTION sp_reporte_rotacion_inventario(DATE, DATE, INTEGER)
+--       TO db_admin, inventory_manager, auditor;
+-- GRANT EXECUTE ON FUNCTION sp_checkout(...) TO db_admin, inventory_manager;
+-- GRANT EXECUTE ON FUNCTION sp_transferencia(...) TO db_admin, inventory_manager;
 
 --Prueba:
 SET ROLE empleado_operativo_1;
