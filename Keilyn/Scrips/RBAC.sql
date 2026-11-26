@@ -1,8 +1,7 @@
-
-SET ROLE postgres;
 --FASE 2: CONTROL DE ACCESO BASADO EN ROLES
 
 --0. Eliminación previa para poder re-ejecutar el script sin errores
+SET ROLE postgres;
 DROP ROLE IF EXISTS admin_petit, gestor_inventario, auditor_petit, empleado_operativo_1;
 DROP ROLE IF EXISTS db_admin, inventory_manager, auditor, empleado_operativo;
 
